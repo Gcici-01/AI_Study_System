@@ -1,0 +1,230 @@
+<!-- AI Study Checkin V6 upgraded: skill dashboard + project records + backup -->
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI学习打卡 V6 - AI工程师成长系统</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#152033;--muted:#667085;--line:#e6eaf0;--blue:#2257d6;--green:#16803c;--amber:#b7791f;--red:#c2413b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink)}
+header{position:sticky;top:0;z-index:5;background:rgba(23,54,93,.96);color:#fff;backdrop-filter:blur(10px);box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.header-inner{max-width:1180px;margin:auto;padding:16px 18px;display:flex;justify-content:space-between;gap:16px;align-items:center}
+h1{font-size:22px;margin:0} .sub{font-size:13px;opacity:.86;margin-top:4px}
+.container{max-width:1180px;margin:auto;padding:18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 3px 14px rgba(16,24,40,.05)}
+.stat{padding:15px} .stat .label{color:var(--muted);font-size:13px} .stat b{display:block;font-size:25px;margin-top:5px}
+.progress{height:10px;background:#edf1f7;border-radius:99px;overflow:hidden;margin-top:8px} .progress>div{height:100%;background:var(--blue);width:0}
+.today{padding:18px;margin-bottom:14px;border:2px solid #dbe6ff}
+.today h2{font-size:19px;margin:0 0 4px} .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef3ff;color:#234eaa;font-size:12px;margin-right:6px}
+.grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.taskbox{padding:12px;border:1px solid var(--line);border-radius:12px;background:#fafcff}
+.taskbox h4{margin:0 0 6px;font-size:13px;color:#42526b} .taskbox p{margin:0;line-height:1.6}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+button,select,input,textarea{font:inherit} button{border:0;border-radius:10px;padding:9px 12px;cursor:pointer}
+.primary{background:var(--blue);color:#fff} .success{background:var(--green);color:#fff} .ghost{background:#fff;border:1px solid var(--line)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+select,input{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:white}
+#search{min-width:260px;flex:1}
+.daycard{padding:14px;margin-bottom:10px} .daycard.done{border-left:5px solid var(--green)} .daycard.review{border-left:5px solid var(--amber)}
+.dayhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start} .daytitle{font-weight:800}
+.status{font-size:12px;padding:4px 8px;border-radius:99px;background:#f2f4f7}
+.details{display:none;margin-top:12px} .daycard.open .details{display:block}
+.controls{display:grid;grid-template-columns:150px 135px 1fr;gap:8px;margin-top:10px}
+textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:9px;margin-top:8px;resize:vertical}
+.small{font-size:12px;color:var(--muted)} .section-title{font-size:16px;margin:20px 0 10px}
+.streak{font-size:12px;opacity:.9}
+.footer-note{text-align:center;color:var(--muted);font-size:12px;padding:22px}
+@media(max-width:760px){
+ .stats{grid-template-columns:1fr 1fr} .grid4{grid-template-columns:1fr} .controls{grid-template-columns:1fr}
+ .header-inner{align-items:flex-start} #search{min-width:100%}
+}
+</style>
+
+<style>
+.v6-panel{padding:18px;margin-top:14px}
+.v6-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.v6-item{padding:12px;border:1px solid #e6eaf0;border-radius:12px;background:#fafcff}
+.v6-item b{display:block;font-size:22px;margin-top:6px}
+@media(max-width:760px){.v6-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div><h1>AI 应用工程师 · 90 天学习打卡</h1><div class="sub">Python · VS Code · GitHub · Codex · Linux · FastAPI · RAG · Agent</div></div>
+    <div class="streak" id="streakText">开始你的 Day 1</div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="stats">
+    <div class="card stat"><div class="label">完成天数</div><b id="doneCount">0 / 90</b></div>
+    <div class="card stat"><div class="label">完成率</div><b id="rate">0%</b><div class="progress"><div id="bar"></div></div></div>
+    <div class="card stat"><div class="label">累计学习</div><b id="hours">0 h</b></div>
+    <div class="card stat"><div class="label">连续完成</div><b id="streak">0 天</b></div>
+  </div>
+
+  
+<div class="card v6-panel">
+<h2 style="font-size:18px;margin-top:0">AI工程师成长面板 V6</h2>
+<div class="v6-grid">
+<div class="v6-item">Python / 后端<b id="skillPython">0%</b></div>
+<div class="v6-item">AI / RAG / Agent<b id="skillAI">0%</b></div>
+<div class="v6-item">PLC / 工业自动化<b id="skillPLC">0%</b></div>
+<div class="v6-item">英语学习<b id="skillEnglish">0%</b></div>
+</div>
+</div>
+
+<div class="card today" id="todayCard"></div>
+
+  <div class="toolbar">
+    <select id="weekFilter"><option value="">全部周次</option></select>
+    <select id="statusFilter">
+      <option value="">全部状态</option><option>未开始</option><option>进行中</option><option>已完成</option><option>需复习</option>
+    </select>
+    <input id="search" placeholder="搜索 Python、VS Code、RAG、Codex、GitHub…">
+    <button class="ghost" onclick="exportData()">导出进度</button>
+    <button class="ghost" onclick="document.getElementById('importFile').click()">导入进度</button><button class="ghost" onclick="restoreLocalBackup()">恢复最近自动备份</button>
+    <input id="importFile" type="file" accept=".json" style="display:none">
+  </div>
+
+  
+<div class="card v6-panel">
+<h2 style="font-size:18px;margin-top:0">项目作品记录</h2>
+<p class="small">建议记录：项目名称、技术栈、解决问题、面试STAR描述。</p>
+<textarea id="projectNotes" placeholder="例如：工业设备故障诊断 Agent 项目..."></textarea>
+</div>
+
+<div class="section-title">全部 90 天任务</div>
+  <div id="list"></div>
+  <div class="footer-note">V5数据保护版：自动保存 + 自动备份。建议定期导出JSON到D盘长期保存。</div>
+</div>
+
+<script>
+const TASKS=[{"day": 1, "week": 1, "topic": "Python基础 + VS Code + Codex", "learn": "安装 Python / VS Code，变量与数据类型", "vscode": "安装 Python 扩展；打开项目文件夹；Terminal运行Python", "codex": "让 Codex 解释你的第一个 Python 脚本，并生成3道练习题", "github": "创建 GitHub 仓库并完成首次 commit", "plan": 1.3}, {"day": 2, "week": 1, "topic": "Python基础 + VS Code + Codex", "learn": "字符串、列表、元组", "vscode": "选择 Python Interpreter；运行 .py 文件", "codex": "让 Codex 对比 list / tuple 使用场景", "github": "push 到 GitHub", "plan": 1.3}, {"day": 3, "week": 1, "topic": "Python基础 + VS Code + Codex", "learn": "字典、集合", "vscode": "Problems 面板、格式化、代码补全", "codex": "让 Codex 检查练习，只提示错误", "github": "练习 git status / diff", "plan": 1.3}, {"day": 4, "week": 1, "topic": "Python基础 + VS Code + Codex", "learn": "if 条件判断", "vscode": "Breakpoint / Continue / Step Over / Variables", "codex": "让 Codex 生成边界测试", "github": "写清 commit message", "plan": 1.3}, {"day": 5, "week": 1, "topic": "Python基础 + VS Code + Codex", "learn": "for / while 循环", "vscode": "项目目录管理", "codex": "让 Codex Review 可读性", "github": "查看 Git diff", "plan": 1.3}, {"day": 6, "week": 1, "topic": "Python基础 + VS Code + Codex", "learn": "函数与参数", "vscode": "创建 venv 并选择解释器", "codex": "让 Codex 建议函数拆分", "github": "创建 README", "plan": 2.5}, {"day": 7, "week": 1, "topic": "Python基础 + VS Code + Codex", "learn": "周复习：独立小程序", "vscode": "完整完成 创建→运行→Debug→保存", "codex": "让 Codex 只做 Review", "github": "整理 README / tag", "plan": 2.5}, {"day": 8, "week": 2, "topic": "Python工程 + Git + Linux", "learn": "文件读写与 JSON", "vscode": "Source Control 查看改动", "codex": "让 Codex 设计 JSON 结构", "github": "学习 .gitignore", "plan": 1.3}, {"day": 9, "week": 2, "topic": "Python工程 + Git + Linux", "learn": "异常处理与模块", "vscode": "VS Code Terminal 中运行脚本", "codex": "让 Codex 分析异常链", "github": "创建 feature 分支", "plan": 1.3}, {"day": 10, "week": 2, "topic": "Python工程 + Git + Linux", "learn": "类与对象", "vscode": "切换 branch", "codex": "让 Codex 评审类设计", "github": "分支 commit", "plan": 1.3}, {"day": 11, "week": 2, "topic": "Python工程 + Git + Linux", "learn": "pip / requirements", "vscode": "venv + pip 管理", "codex": "让 Codex 检查依赖", "github": "提交 requirements.txt", "plan": 1.3}, {"day": 12, "week": 2, "topic": "Python工程 + Git + Linux", "learn": "Git add / commit / push / pull", "vscode": "Source Control 配合命令行", "codex": "让 Codex 解释真实 diff", "github": "练习 pull", "plan": 1.3}, {"day": 13, "week": 2, "topic": "Python工程 + Git + Linux", "learn": "Linux 文件/目录/权限", "vscode": "Terminal 练习 Linux 命令", "codex": "让 Codex 出命令练习题", "github": "记录命令笔记", "plan": 2.5}, {"day": 14, "week": 2, "topic": "Python工程 + Git + Linux", "learn": "Linux grep/curl/进程 + 周项目", "vscode": "终端调试", "codex": "让 Codex Debug 小项目", "github": "merge 分支", "plan": 2.5}, {"day": 15, "week": 3, "topic": "HTTP/API + VS Code调试", "learn": "客户端 / 服务器 / IP / 端口", "vscode": "全局搜索与文件搜索", "codex": "让 Codex 解释请求链路", "github": "创建本周 Issue", "plan": 1.3}, {"day": 16, "week": 3, "topic": "HTTP/API + VS Code调试", "learn": "HTTP 请求与响应", "vscode": "curl 调试", "codex": "让 Codex 分析 curl 请求", "github": "Issue 关联 commit", "plan": 1.3}, {"day": 17, "week": 3, "topic": "HTTP/API + VS Code调试", "learn": "GET / POST / 状态码 / JSON", "vscode": "Debug API 调用脚本", "codex": "让 Codex 生成错误测试", "github": "feature 分支", "plan": 1.3}, {"day": 18, "week": 3, "topic": "HTTP/API + VS Code调试", "learn": "requests / httpx", "vscode": "跨文件导航", "codex": "让 Codex 先写测试思路", "github": "push", "plan": 1.3}, {"day": 19, "week": 3, "topic": "HTTP/API + VS Code调试", "learn": "API Key / 环境变量", "vscode": ".env 管理", "codex": "让 Codex 检查密钥泄露风险", "github": ".gitignore / .env.example", "plan": 1.3}, {"day": 20, "week": 3, "topic": "HTTP/API + VS Code调试", "learn": "Linux SSH / 日志 / 进程", "vscode": "Terminal 查日志", "codex": "让 Codex 给日志排查树", "github": "README运行方法", "plan": 2.5}, {"day": 21, "week": 3, "topic": "HTTP/API + VS Code调试", "learn": "项目：公开API数据处理", "vscode": "Code→Debug→Git完整闭环", "codex": "让 Codex 做 Code Review", "github": "开 PR 并自审", "plan": 2.5}, {"day": 22, "week": 4, "topic": "SQL + FastAPI", "learn": "数据库 / 表 / 主键", "vscode": "FastAPI 项目目录", "codex": "Codex 评审表结构", "github": "Issue拆任务", "plan": 1.3}, {"day": 23, "week": 4, "topic": "SQL + FastAPI", "learn": "SELECT / WHERE", "vscode": "SQL 文件与终端", "codex": "Codex 生成SQL练习", "github": "commit", "plan": 1.3}, {"day": 24, "week": 4, "topic": "SQL + FastAPI", "learn": "INSERT / UPDATE / DELETE", "vscode": "调试数据库交互", "codex": "Codex 检查异常场景", "github": "branch", "plan": 1.3}, {"day": 25, "week": 4, "topic": "SQL + FastAPI", "learn": "GROUP BY / JOIN", "vscode": "跨文件导航", "codex": "Codex 优化查询思路", "github": "PR描述", "plan": 1.3}, {"day": 26, "week": 4, "topic": "SQL + FastAPI", "learn": "FastAPI GET / POST", "vscode": "启动 uvicorn", "codex": "Codex 先给实现计划", "github": "模块拆分", "plan": 1.3}, {"day": 27, "week": 4, "topic": "SQL + FastAPI", "learn": "Pydantic / 请求体 / 异常", "vscode": "Debug接口", "codex": "Codex 补测试", "github": "tests目录", "plan": 2.5}, {"day": 28, "week": 4, "topic": "SQL + FastAPI", "learn": "设备故障管理 API", "vscode": "全流程调试", "codex": "Codex 跨文件Review", "github": "PR→Merge", "plan": 2.5}, {"day": 29, "week": 5, "topic": "LLM应用基础", "learn": "LLM / Token / Context", "vscode": "环境变量管理", "codex": "Codex 分析Token成本", "github": "Issue", "plan": 1.3}, {"day": 30, "week": 5, "topic": "LLM应用基础", "learn": "调用 LLM API", "vscode": "运行与Debug", "codex": "Codex 先读代码再修改", "github": "branch", "plan": 1.3}, {"day": 31, "week": 5, "topic": "LLM应用基础", "learn": "Prompt 基础", "vscode": "记录Prompt版本", "codex": "Codex 比较3种Prompt", "github": "commit", "plan": 1.3}, {"day": 32, "week": 5, "topic": "LLM应用基础", "learn": "System / User Prompt", "vscode": "调试输出", "codex": "Codex 设计防跑偏测试", "github": "README", "plan": 1.3}, {"day": 33, "week": 5, "topic": "LLM应用基础", "learn": "Structured Output", "vscode": "Pydantic schema", "codex": "Codex 生成schema", "github": "tests", "plan": 1.3}, {"day": 34, "week": 5, "topic": "LLM应用基础", "learn": "Function Calling", "vscode": "接口定义", "codex": "Codex 设计Tool schema", "github": "Review", "plan": 2.5}, {"day": 35, "week": 5, "topic": "LLM应用基础", "learn": "AI故障分析助手 V1", "vscode": "项目运行", "codex": "Codex 检查错误处理", "github": "PR", "plan": 2.5}, {"day": 36, "week": 6, "topic": "Embedding + 向量检索", "learn": "Embedding 概念", "vscode": "项目导航", "codex": "Codex 解释调用链", "github": "Issue", "plan": 1.3}, {"day": 37, "week": 6, "topic": "Embedding + 向量检索", "learn": "向量 / 余弦相似度", "vscode": "运行验证脚本", "codex": "Codex 生成实验", "github": "commit", "plan": 1.3}, {"day": 38, "week": 6, "topic": "Embedding + 向量检索", "learn": "Chunking 原理", "vscode": "配置文件管理", "codex": "Codex 比较切块策略", "github": "实验记录", "plan": 1.3}, {"day": 39, "week": 6, "topic": "Embedding + 向量检索", "learn": "Vector DB 入门", "vscode": "接口层", "codex": "Codex 设计接口", "github": "branch", "plan": 1.3}, {"day": 40, "week": 6, "topic": "Embedding + 向量检索", "learn": "向量写入 / 查询", "vscode": "Debug", "codex": "Codex 补边界测试", "github": "tests", "plan": 1.3}, {"day": 41, "week": 6, "topic": "Embedding + 向量检索", "learn": "Top-K 检索", "vscode": "日志分析", "codex": "Codex 分析召回失败", "github": "Issue", "plan": 2.5}, {"day": 42, "week": 6, "topic": "Embedding + 向量检索", "learn": "设备文档语义搜索", "vscode": "项目全流程", "codex": "Codex Repo级Review", "github": "PR", "plan": 2.5}, {"day": 43, "week": 7, "topic": "RAG基础", "learn": "RAG 整体流程", "vscode": "模块导航", "codex": "Codex 分析模块边界", "github": "Implementation Plan", "plan": 1.3}, {"day": 44, "week": 7, "topic": "RAG基础", "learn": "PDF / 文档加载", "vscode": "异常调试", "codex": "Codex 处理异常文件策略", "github": "branch", "plan": 1.3}, {"day": 45, "week": 7, "topic": "RAG基础", "learn": "文本切块", "vscode": "配置对比", "codex": "Codex 生成可对比配置", "github": "实验记录", "plan": 1.3}, {"day": 46, "week": 7, "topic": "RAG基础", "learn": "Embedding 入库", "vscode": "调试重复入库", "codex": "Codex 检查去重", "github": "tests", "plan": 1.3}, {"day": 47, "week": 7, "topic": "RAG基础", "learn": "Retrieval", "vscode": "日志定位", "codex": "Codex 加日志", "github": "commit", "plan": 1.3}, {"day": 48, "week": 7, "topic": "RAG基础", "learn": "答案引用来源", "vscode": "数据结构", "codex": "Codex 设计citation结构", "github": "README", "plan": 2.5}, {"day": 49, "week": 7, "topic": "RAG基础", "learn": "工业 RAG V1", "vscode": "全流程", "codex": "Codex Repo级Review", "github": "PR", "plan": 2.5}, {"day": 50, "week": 8, "topic": "Advanced RAG + Evaluation", "learn": "Metadata Filter", "vscode": "过滤调试", "codex": "Codex 补测试", "github": "Issue", "plan": 1.3}, {"day": 51, "week": 8, "topic": "Advanced RAG + Evaluation", "learn": "Query Rewrite", "vscode": "评测脚本", "codex": "Codex 生成对比实验", "github": "commit", "plan": 1.3}, {"day": 52, "week": 8, "topic": "Advanced RAG + Evaluation", "learn": "Hybrid Search", "vscode": "项目配置", "codex": "Codex 解释融合策略", "github": "笔记", "plan": 1.3}, {"day": 53, "week": 8, "topic": "Advanced RAG + Evaluation", "learn": "Reranker", "vscode": "接口设计", "codex": "Codex 设计可插拔接口", "github": "branch", "plan": 1.3}, {"day": 54, "week": 8, "topic": "Advanced RAG + Evaluation", "learn": "Top-K / 召回调优", "vscode": "日志分析", "codex": "Codex 分类失败case", "github": "Issue", "plan": 1.3}, {"day": 55, "week": 8, "topic": "Advanced RAG + Evaluation", "learn": "RAG 测试集 / 评测", "vscode": "runner", "codex": "Codex 生成评测runner", "github": "Actions基础", "plan": 2.5}, {"day": 56, "week": 8, "topic": "Advanced RAG + Evaluation", "learn": "RAG V2", "vscode": "性能对比", "codex": "Codex 总结diff", "github": "Release", "plan": 2.5}, {"day": 57, "week": 9, "topic": "Agent基础", "learn": "Agent 工作原理", "vscode": "调用链导航", "codex": "Codex 解释工具选择", "github": "Issue", "plan": 1.3}, {"day": 58, "week": 9, "topic": "Agent基础", "learn": "Tool Calling", "vscode": "接口模板", "codex": "Codex 生成Tool模板", "github": "branch", "plan": 1.3}, {"day": 59, "week": 9, "topic": "Agent基础", "learn": "设备状态 Tool", "vscode": "Debug", "codex": "Codex 先测试后实现", "github": "tests", "plan": 1.3}, {"day": 60, "week": 9, "topic": "Agent基础", "learn": "报警记录 Tool", "vscode": "异常输入", "codex": "Codex 做边界测试", "github": "PR", "plan": 1.3}, {"day": 61, "week": 9, "topic": "Agent基础", "learn": "RAG 检索 Tool", "vscode": "接口一致性", "codex": "Codex Review", "github": "refactor", "plan": 1.3}, {"day": 62, "week": 9, "topic": "Agent基础", "learn": "任务拆解 / 工具选择", "vscode": "失败场景", "codex": "Codex 构造失败case", "github": "Issue", "plan": 2.5}, {"day": 63, "week": 9, "topic": "Agent基础", "learn": "故障诊断 Agent V1", "vscode": "端到端调试", "codex": "Codex 端到端Review", "github": "Merge", "plan": 2.5}, {"day": 64, "week": 10, "topic": "LangGraph + 多文件开发", "learn": "State / Node / Edge", "vscode": "多文件导航", "codex": "Codex 画调用图", "github": "Issue", "plan": 1.3}, {"day": 65, "week": 10, "topic": "LangGraph + 多文件开发", "learn": "Conditional Edge", "vscode": "Debug条件分支", "codex": "Codex 给边界测试", "github": "branch", "plan": 1.3}, {"day": 66, "week": 10, "topic": "LangGraph + 多文件开发", "learn": "Memory", "vscode": "状态查看", "codex": "Codex Review存储设计", "github": "设计说明", "plan": 1.3}, {"day": 67, "week": 10, "topic": "LangGraph + 多文件开发", "learn": "多工具编排", "vscode": "跨文件修改", "codex": "Codex 跨文件开发", "github": "PR", "plan": 1.3}, {"day": 68, "week": 10, "topic": "LangGraph + 多文件开发", "learn": "反思 / 纠错", "vscode": "日志", "codex": "Codex 生成失败case", "github": "tests", "plan": 1.3}, {"day": 69, "week": 10, "topic": "LangGraph + 多文件开发", "learn": "Agent 异常处理", "vscode": "Tracing", "codex": "Codex 加日志", "github": "Review", "plan": 2.5}, {"day": 70, "week": 10, "topic": "LangGraph + 多文件开发", "learn": "Agent V2", "vscode": "架构总结", "codex": "Codex 总结风险", "github": "Release", "plan": 2.5}, {"day": 71, "week": 11, "topic": "工程化", "learn": "Docker 基础", "vscode": "Dockerfile编辑", "codex": "Codex 解释每层", "github": "commit", "plan": 1.3}, {"day": 72, "week": 11, "topic": "工程化", "learn": "Dockerfile", "vscode": "构建日志", "codex": "Codex 优化镜像", "github": "PR", "plan": 1.3}, {"day": 73, "week": 11, "topic": "工程化", "learn": "docker build / run", "vscode": "终端排错", "codex": "Codex 给排查树", "github": "Issue", "plan": 1.3}, {"day": 74, "week": 11, "topic": "工程化", "learn": "Tracing / 日志", "vscode": "日志搜索", "codex": "Codex 统一日志格式", "github": "branch", "plan": 1.3}, {"day": 75, "week": 11, "topic": "工程化", "learn": "Token / 延迟 / 错误记录", "vscode": "metrics", "codex": "Codex 增加字段", "github": "tests", "plan": 1.3}, {"day": 76, "week": 11, "topic": "工程化", "learn": "Evaluation 自动化", "vscode": "回归运行", "codex": "Codex 生成测试清单", "github": "Actions", "plan": 2.5}, {"day": 77, "week": 11, "topic": "工程化", "learn": "部署 FastAPI + RAG / Agent", "vscode": "部署检查", "codex": "Codex 发布前Review", "github": "Release", "plan": 2.5}, {"day": 78, "week": 12, "topic": "综合项目", "learn": "系统架构", "vscode": "架构目录", "codex": "Codex 评审模块边界", "github": "Project/Issues", "plan": 1.3}, {"day": 79, "week": 12, "topic": "综合项目", "learn": "整理 README", "vscode": "文档编辑", "codex": "Codex 改进README", "github": "README", "plan": 1.3}, {"day": 80, "week": 12, "topic": "综合项目", "learn": "整合 FastAPI + SQL", "vscode": "跨文件调试", "codex": "Codex 实现+测试", "github": "PR", "plan": 1.3}, {"day": 81, "week": 12, "topic": "综合项目", "learn": "整合 RAG", "vscode": "性能分析", "codex": "Codex 查瓶颈", "github": "Issue", "plan": 1.3}, {"day": 82, "week": 12, "topic": "综合项目", "learn": "整合 Agent", "vscode": "回归测试", "codex": "Codex 做回归检查", "github": "PR", "plan": 1.3}, {"day": 83, "week": 12, "topic": "综合项目", "learn": "Docker 化与测试", "vscode": "发布检查", "codex": "Codex 检查部署", "github": "RC", "plan": 2.5}, {"day": 84, "week": 12, "topic": "综合项目", "learn": "Demo / 项目介绍", "vscode": "项目演示", "codex": "Codex 生成面试追问", "github": "Pinned Repo", "plan": 2.5}, {"day": 85, "week": 13, "topic": "求职冲刺", "learn": "整理 GitHub 项目", "vscode": "Profile优化", "codex": "Codex 审查Pinned Repo", "github": "Profile", "plan": 1.3}, {"day": 86, "week": 13, "topic": "求职冲刺", "learn": "写项目 STAR", "vscode": "简历文档", "codex": "Codex 模拟追问", "github": "简历", "plan": 1.3}, {"day": 87, "week": 13, "topic": "求职冲刺", "learn": "Python 面试题", "vscode": "代码练习", "codex": "Codex 出题", "github": "错题", "plan": 1.3}, {"day": 88, "week": 13, "topic": "求职冲刺", "learn": "RAG 面试题", "vscode": "项目回顾", "codex": "Codex 基于项目追问", "github": "复盘", "plan": 1.3}, {"day": 89, "week": 13, "topic": "求职冲刺", "learn": "Agent 面试题", "vscode": "架构复盘", "codex": "Codex 追问设计选择", "github": "复盘", "plan": 1.3}, {"day": 90, "week": 13, "topic": "求职冲刺", "learn": "模拟项目面试", "vscode": "Code Review", "codex": "Codex 做Review面试", "github": "README改进", "plan": 2.5}];
+const KEY='ai_learning_checkin_v4';
+let state=JSON.parse(localStorage.getItem(KEY)||'{}');
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function getS(day){return state[day]||{status:'未开始',hours:'',note:'',link:''}}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(state));
+  localStorage.setItem(KEY+'_backup',JSON.stringify({
+    time:new Date().toISOString(),
+    state:state
+  }));
+  renderAll()
+}
+function update(day,key,value){state[day]={...getS(day),[key]:value};save()}
+function markDone(day){const s=getS(day);state[day]={...s,status:'已完成',hours:s.hours||TASKS.find(t=>t.day===day).plan};save();setTimeout(()=>document.getElementById('todayCard').scrollIntoView({behavior:'smooth'}),50)}
+
+function calc(){
+ const done=TASKS.filter(t=>getS(t.day).status==='已完成').length;
+ const hrs=TASKS.reduce((a,t)=>a+(parseFloat(getS(t.day).hours)||0),0);
+ let streak=0; for(const t of TASKS){if(getS(t.day).status==='已完成')streak++;else break}
+ return {done,hrs,streak};
+}
+
+
+function renderSkills(){
+  const total=TASKS.length||90;
+  const done=TASKS.filter(t=>getS(t.day).status==='已完成').length;
+  const p=Math.round(done/total*100);
+  skillPython.textContent=Math.min(100,p+5)+'%';
+  skillAI.textContent=Math.round(p*0.8)+'%';
+  skillPLC.textContent=Math.round(p*0.35)+'%';
+  skillEnglish.textContent=Math.round(p*0.45)+'%';
+}
+
+function renderStats(){
+ const s=calc(); const pct=Math.round(s.done/TASKS.length*100);
+ doneCount.textContent=`${s.done} / ${TASKS.length}`; rate.textContent=pct+'%'; bar.style.width=pct+'%';
+ hours.textContent=s.hrs.toFixed(1)+' h'; streak.textContent=s.streak+' 天';
+ streakText.textContent=s.done===90?'90天全部完成 🎉':`当前进度：${pct}%`;
+}
+
+function renderToday(){
+ const t=TASKS.find(x=>getS(x.day).status!=='已完成')||TASKS[TASKS.length-1];
+ const s=getS(t.day);
+ todayCard.innerHTML=`
+ <div><span class="pill">Day ${t.day}</span><span class="pill">第 ${t.week} 周</span></div>
+ <h2 style="margin-top:10px">今天：${esc(t.topic)}</h2>
+ <div class="small">计划学习 ${t.plan} 小时</div>
+ <div class="grid4">
+  <div class="taskbox"><h4>学习任务</h4><p>${esc(t.learn)}</p></div>
+  <div class="taskbox"><h4>VS Code</h4><p>${esc(t.vscode)}</p></div>
+  <div class="taskbox"><h4>Codex / AI Coding</h4><p>${esc(t.codex)}</p></div>
+  <div class="taskbox"><h4>GitHub</h4><p>${esc(t.github)}</p></div>
+ </div>
+ <div class="controls">
+  <select onchange="update(${t.day},'status',this.value)">${['未开始','进行中','已完成','需复习'].map(x=>`<option ${s.status===x?'selected':''}>${x}</option>`).join('')}</select>
+  <input type="number" step="0.1" min="0" value="${esc(s.hours)}" placeholder="实际时长(h)" onchange="update(${t.day},'hours',this.value)">
+  <input value="${esc(s.link)}" placeholder="GitHub / PR / 项目链接" onchange="update(${t.day},'link',this.value)">
+ </div>
+ <textarea placeholder="今天学到了什么？哪里没搞懂？" onchange="update(${t.day},'note',this.value)">${esc(s.note)}</textarea>
+ <div class="actions"><button class="success" onclick="markDone(${t.day})">✓ 今天完成</button><button class="ghost" onclick="update(${t.day},'status','需复习')">标记需复习</button></div>`;
+}
+
+function renderList(){
+ const wf=weekFilter.value, sf=statusFilter.value, q=search.value.trim().toLowerCase();
+ list.innerHTML='';
+ TASKS.filter(t=>{
+   const s=getS(t.day), text=(t.topic+t.learn+t.vscode+t.codex+t.github).toLowerCase();
+   return (!wf||String(t.week)===wf)&&(!sf||s.status===sf)&&(!q||text.includes(q));
+ }).forEach(t=>{
+   const s=getS(t.day), d=document.createElement('div');
+   d.className='card daycard '+(s.status==='已完成'?'done':s.status==='需复习'?'review':'');
+   d.innerHTML=`<div class="dayhead" onclick="this.parentElement.classList.toggle('open')" style="cursor:pointer">
+     <div><span class="daytitle">Day ${t.day}</span> · 第 ${t.week} 周 · ${esc(t.topic)}</div>
+     <span class="status">${s.status}</span>
+   </div>
+   <div class="details">
+    <div class="grid4">
+      <div class="taskbox"><h4>学习</h4><p>${esc(t.learn)}</p></div>
+      <div class="taskbox"><h4>VS Code</h4><p>${esc(t.vscode)}</p></div>
+      <div class="taskbox"><h4>Codex</h4><p>${esc(t.codex)}</p></div>
+      <div class="taskbox"><h4>GitHub</h4><p>${esc(t.github)}</p></div>
+    </div>
+    <div class="controls">
+      <select onchange="event.stopPropagation();update(${t.day},'status',this.value)">${['未开始','进行中','已完成','需复习'].map(x=>`<option ${s.status===x?'selected':''}>${x}</option>`).join('')}</select>
+      <input type="number" step="0.1" min="0" value="${esc(s.hours)}" placeholder="实际时长(h)" onchange="update(${t.day},'hours',this.value)">
+      <input value="${esc(s.link)}" placeholder="GitHub / PR 链接" onchange="update(${t.day},'link',this.value)">
+    </div>
+    <textarea placeholder="学习笔记" onchange="update(${t.day},'note',this.value)">${esc(s.note)}</textarea>
+   </div>`;
+   list.appendChild(d);
+ });
+}
+
+function restoreLocalBackup(){
+  const backup=localStorage.getItem(KEY+'_backup');
+  if(!backup){alert('暂无自动备份');return}
+  try{
+    const obj=JSON.parse(backup);
+    state=obj.state||{};
+    save();
+    alert('已恢复最近自动备份：'+obj.time);
+  }catch(e){
+    alert('恢复失败');
+  }
+}
+
+function renderAll(){renderStats();renderSkills();renderToday();renderList()}
+
+function exportData(){
+ const blob=new Blob([JSON.stringify({version:4,state},null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='AI_Study_Progress.json';a.click();URL.revokeObjectURL(a.href);
+}
+importFile.addEventListener('change',async e=>{
+ const f=e.target.files[0]; if(!f)return;
+ try{const obj=JSON.parse(await f.text());state=obj.state||obj;save();alert('进度导入成功')}catch{alert('导入失败：文件格式不正确')}
+ e.target.value='';
+});
+for(let i=1;i<=13;i++){const o=document.createElement('option');o.value=i;o.textContent='第 '+i+' 周';weekFilter.appendChild(o)}
+weekFilter.addEventListener('change',renderList);statusFilter.addEventListener('change',renderList);search.addEventListener('input',renderList);
+renderAll();
+</script>
+</body></html>
