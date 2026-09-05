@@ -1,4 +1,0 @@
-readme.md:说明文档
-frontend:网页代码：HTML\CSS\JavaScript
-docs:开发记录：V5完成了什么，V6准备增加什么，遇到的问题
-backup:备份
