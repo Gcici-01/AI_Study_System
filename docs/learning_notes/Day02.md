@@ -285,7 +285,12 @@ git push
 
 ### git add 文件名
 
-将指定文件修改加入暂存区。
+将指定文件修改加入暂存区，文件名是相对目录文件地址
+ 
+ 例如：
+ 
+ MINGW64 /d/Dev/Projects/AI_Study_System/docs (main)
+$ git add learning_notes/Day02.md
 
 ### git add .
 
@@ -293,7 +298,7 @@ git push
 
 ### git commit
 
-保存一个版本。
+保存一个版本。一般应用git commit -m "版本说明内容"。
 
 ### git push
 
