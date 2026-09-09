@@ -755,8 +755,28 @@ print("任务不能为空")
 
 改为返回判断结果：
 
-```
-True / False
+例如：
+```python
+def check_task(task):
+    if task=="":
+        return False
+    return True
+    # 只判断不执行，不要让函数承担太多职责，即又判断又输出，又控制程序退出 
+while True:
+
+    user_input = input("请输入任务:")
+
+    if user_input == "exit":
+        break
+
+    elif user_input == "list":
+        show_tasks()
+
+    elif check_task(user_input):
+        add_task(user_input)
+    # 函数返回True则执行，False则不执行
+    else:
+        print("任务不能为空")
 ```
 
 
